@@ -18,3 +18,6 @@ coverage/
 *.crt
 *.cer
 '@ | Out-File -Encoding UTF8 .gitignore
+# macOS
+.DS_Store
+__MACOSX/

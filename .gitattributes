@@ -5,4 +5,4 @@
 *.json text eol=lf
 *.md   text eol=lf
 Dockerfile text eol=lf
-'@ | Out-File -Encoding UTF8 .gitattributes
+'@
