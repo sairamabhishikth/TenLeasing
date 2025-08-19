@@ -1,0 +1,116 @@
+// Customer Service Database Schema
+// File: /customer-service/schema.prisma
+// Version: 1.0.0
+// 
+// Purpose: Customer domain tables for Ten NextGen Platform
+//          Single schema for customer, account, user, and user_has_account entities
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Customer - Root aggregate entity
+model Customer {
+  customerId           Int       @id @map("customer_id")
+  customerName         String    @map("customer_name") @db.VarChar(255)
+  customerClass        String    @map("customer_class") @db.VarChar(10)
+  status               String    @db.VarChar(3)
+  referenceNumber      String    @map("reference_number") @db.VarChar(100)
+  soldBySalespersonId  Int?      @map("sold_by_salesperson_id")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
+  createdBy            Int?      @map("created_by")
+  updatedAt            DateTime? @updatedAt @map("updated_at") @db.Timestamp(3)
+  updatedBy            Int?      @map("updated_by")
+
+  // Relationships
+  accounts Account[]
+  users    User[]
+
+  @@map("customer")
+}
+
+// Account - Self-referencing with customer FK
+model Account {
+  accountId             Int       @id @map("account_id")
+  parentAccountId       Int?      @map("parent_account_id")
+  customerId            Int       @map("customer_id")
+  primaryContactUserId  Int?      @map("primary_contact_user_id")
+  countryLookupId       Int       @map("country_lookup_id")
+  accountName           String?   @map("account_name") @db.VarChar(255)
+  accountNumber         String?   @map("account_number") @db.VarChar(20)
+  legacyAccountNumber   String?   @map("legacy_account_number") @db.VarChar(30)
+  accountType           String    @default("NATIONAL") @map("account_type") @db.VarChar(10)
+  accountManagerId      Int?      @map("account_manager_id")
+  numberOfUsers         Int?      @map("number_of_users")
+  status                String?   @db.VarChar(3)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
+  createdBy             Int?      @map("created_by")
+  updatedAt             DateTime? @updatedAt @map("updated_at") @db.Timestamp(3)
+  updatedBy             Int?      @map("updated_by")
+
+  // Self-referencing relationship
+  parentAccount Account?  @relation("AccountHierarchy", fields: [parentAccountId], references: [accountId])
+  childAccounts Account[] @relation("AccountHierarchy")
+
+  // Foreign key relationships
+  customer Customer @relation(fields: [customerId], references: [customerId])
+
+  // Many-to-many with users
+  userHasAccounts UserHasAccount[]
+
+  @@map("account")
+}
+
+// User - Customer-scoped entity
+model User {
+  userId              Int       @id @map("user_id")
+  customerId          Int       @map("customer_id")
+  firstName           String?   @map("first_name") @db.VarChar(255)
+  lastName            String?   @map("last_name") @db.VarChar(255)
+  email               String?   @db.VarChar(255)
+  phoneNumber         String?   @map("phone_number") @db.VarChar(255)
+  designation         String?   @db.VarChar(255)
+  avatar              String?   @db.VarChar(255)
+  auth0ReferenceId    String    @map("auth_0_reference_id") @db.VarChar(255)
+  status              String?   @db.VarChar(3)
+  isCustomer          Boolean   @default(false) @map("is_customer")
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
+  createdBy           Int?      @map("created_by")
+  updatedAt           DateTime? @updatedAt @map("updated_at") @db.Timestamp(3)
+  updatedBy           Int?      @map("updated_by")
+  userRoleId          Int       @map("user_role_id")
+  firstActive         DateTime? @map("first_active") @db.Timestamp(3)
+  lastActive          DateTime? @map("last_active") @db.Timestamp(3)
+
+  // Foreign key relationships
+  customer Customer @relation(fields: [customerId], references: [customerId])
+
+  // Many-to-many with accounts
+  userHasAccounts UserHasAccount[]
+
+  @@map("user")
+}
+
+// Junction table for User-Account many-to-many relationship
+model UserHasAccount {
+  userHasAccountId Int       @id @map("user_has_account_id")
+  userId           Int       @map("user_id")
+  accountId        Int       @map("account_id")
+  effectiveDate    DateTime? @map("effective_date") @db.Timestamp(3)
+  status           String?   @db.VarChar(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
+  createdBy        Int?      @map("created_by")
+  updatedAt        DateTime? @updatedAt @map("updated_at") @db.Timestamp(3)
+  updatedBy        Int?      @map("updated_by")
+
+  // Foreign key relationships
+  user    User    @relation(fields: [userId], references: [userId])
+  account Account @relation(fields: [accountId], references: [accountId])
+
+  @@map("user_has_account")
+}

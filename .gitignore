@@ -1,0 +1,20 @@
+@'
+# Node
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+# Secrets
+.env
+*.env
+*.pem
+*.pfx
+*.key
+*.p12
+*.jks
+*.keystore
+*.crt
+*.cer
+'@ | Out-File -Encoding UTF8 .gitignore
