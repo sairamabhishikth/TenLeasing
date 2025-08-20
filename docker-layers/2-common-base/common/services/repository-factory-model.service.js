@@ -59,16 +59,17 @@ class GenericRepository {
    * @param {string} entityName - Entity name
    * @returns {string} Primary key field name
    */
-  _getPrimaryKeyField(entityName) {
-    const primaryKeyMap = {
-      'customer': 'customerId',
-      'account': 'accountId',
-      'user': 'userId',
-      'userHasAccount': 'userHasAccountId'
-    };
-    
-    return primaryKeyMap[entityName] || 'id';
-  }
+  // In repository-factory-model.service.js
+_getPrimaryKeyField(entityName) {
+  const primaryKeyMap = {
+    'customer': 'customerId',     // ✅ Matches schema
+    'account': 'accountId',       // ✅ Matches schema  
+    'user': 'userId',             // ✅ Matches schema
+    'userHasAccount': 'userHasAccountId'  // ✅ Matches schema
+  };
+  
+  return primaryKeyMap[entityName] || 'id';
+}
 
   /**
    * Find entity by primary key
@@ -306,3 +307,4 @@ module.exports = {
   getRepository: (entityName) => repositoryFactory.getRepository(entityName),
   clearCache: (entityName) => repositoryFactory.clearCache(entityName)
 };
+
