@@ -1,16 +1,18 @@
 /**
  * Customer Domain Controller
  * File: /customer-service/customer.controller.js
- * Version: 1.1.0 - Account Management Added
+ * Version: 1.1.1 - Import Paths Fixed
  * 
  * Purpose: HTTP request/response handlers for customer domain
  *          ✅ PRESERVES: All existing methods (createCustomer, getUsersByAccount variants, etc.)
  *          ✅ ADDS: Account management methods from TypeScript controller
+ *          ✅ FIXED: Import paths to work with directory structure
  */
 
 const CustomerService = require('./customer.service');
-const AppError = require('../common/services/app-error');
-const { createRequestLogger } = require('../common/services/logger.service');
+// ✅ FIXED: Correct paths to common-base layer
+const AppError = require('../../2-common-base/common/services/app-error');
+const { createRequestLogger } = require('../../2-common-base/common/services/logger.service');
 
 class CustomerController {
   constructor() {

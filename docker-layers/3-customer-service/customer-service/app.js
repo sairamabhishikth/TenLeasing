@@ -7,9 +7,9 @@
  *          Minimal glue code - all functionality provided by Layer 2
  */
 
-const { createApp, startServer } = require('../common/services/app-factory.service');
+const { createApp, startServer } = require('../../2-common-base/common/services/app-factory.service');
 const CustomerRoutes = require('./customer.routes');
-const { getLogger } = require('../common/services/logger.service');
+const { getLogger } = require('../../2-common-base/common/services/logger.service');
 
 class CustomerServiceApplication {
   constructor() {

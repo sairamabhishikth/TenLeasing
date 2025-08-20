@@ -7,8 +7,9 @@
  *          CRUD operations provided by repository factory pattern
  */
 
-const AppError = require('../../common/services/app-error');
-const { getLogger, logDatabaseOperation, debugSafe } = require('../../common/services/logger.service');
+// ✅ FIXED: Correct paths to common-base layer
+const AppError = require('../../../2-common-base/common/services/app-error');
+const { getLogger, logDatabaseOperation, debugSafe } = require('../../../2-common-base/common/services/logger.service');
 
 // Performance-optimized SQL with field variants for minimal data transfer
 const SQL_QUERIES = {

@@ -10,7 +10,7 @@
 
 const express = require('express');
 const CustomerController = require('./customer.controller');
-const { getLogger, debugSafe } = require('../common/services/logger.service');
+const { getLogger, debugSafe } = require('../../2-common-base/common/services/logger.service');
 
 class CustomerRoutes {
   constructor() {

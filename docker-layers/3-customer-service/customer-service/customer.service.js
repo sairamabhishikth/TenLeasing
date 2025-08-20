@@ -1,16 +1,17 @@
 /**
  * Customer Domain Service - FIXED VERSION
  * File: /customer-service/customer.service.js
- * Version: 1.2.0 - Schema Aligned & Working
+ * Version: 1.2.1 - Import Paths Fixed
  * 
- * Purpose: Fixed to work with actual Prisma schema
+ * Purpose: Fixed import paths to work with actual directory structure
  */
 
-const { getClient, executeTransaction } = require('../common/services/database.service');
-const { getRepository } = require('../common/services/repository-factory-model.service');
+// ✅ FIXED: Correct paths to common-base layer
+const { getClient, executeTransaction } = require('../../2-common-base/common/services/database.service');
+const { getRepository } = require('../../2-common-base/common/services/repository-factory-model.service');
 const CustomerModel = require('./models/customer.model');
-const AppError = require('../common/services/app-error');
-const { createRequestLogger } = require('../common/services/logger.service');
+const AppError = require('../../2-common-base/common/services/app-error');
+const { createRequestLogger } = require('../../2-common-base/common/services/logger.service');
 
 class CustomerService {
   constructor() {
@@ -581,40 +582,66 @@ class CustomerService {
       throw error;
     }
   }
+  
   async downloadAccountsByUserId(userId, pagination, filters, res, requestId = null) {
-  // Get the data
-  const result = await this.getAccountsByUserId(userId, pagination, filters, requestId);
-  
-  // Create CSV
-  const csv = this._generateAccountsCSV(result.data);
-  const filename = `user_${userId}_accounts.csv`;
-  
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-  res.send(csv);
-}
+    // Get the data
+    const result = await this.getAccountsByUserId(userId, pagination, filters, requestId);
+    
+    // Create CSV
+    const csv = this._generateAccountsCSV(result.data);
+    const filename = `user_${userId}_accounts.csv`;
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.send(csv);
+  }
 
-async downloadSecondaryContacts(accountId, pagination, filters, res, requestId = null) {
-  // Get the data  
-  const result = await this.getSecondaryContacts(accountId, pagination, filters, requestId);
-  
-  // Create CSV
-  const csv = this._generateContactsCSV(result.data);
-  const filename = `account_${accountId}_contacts.csv`;
-  
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-  res.send(csv);
-}
+  async downloadSecondaryContacts(accountId, pagination, filters, res, requestId = null) {
+    // Get the data  
+    const result = await this.getSecondaryContacts(accountId, pagination, filters, requestId);
+    
+    // Create CSV
+    const csv = this._generateContactsCSV(result.data);
+    const filename = `account_${accountId}_contacts.csv`;
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.send(csv);
+  }
 
-  // Export methods remain the same but use the fixed data methods above
-
+  // Helper methods
   _capitalizeVariant(variant) {
     return variant.charAt(0).toUpperCase() + variant.slice(1);
   }
+
+  _generateAccountsCSV(accounts) {
+    const headers = ['Account ID', 'Account Name', 'Account Number', 'Account Type', 'Status', 'Customer Name'];
+    const rows = accounts.map(account => [
+      account.accountId,
+      account.accountName,
+      account.accountNumber,
+      account.accountType,
+      account.status,
+      account.customer?.customerName || ''
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+  }
+
+  _generateContactsCSV(contacts) {
+    const headers = ['User ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Designation', 'Status'];
+    const rows = contacts.map(contact => [
+      contact.userId,
+      contact.firstName,
+      contact.lastName,
+      contact.email,
+      contact.phoneNumber,
+      contact.designation,
+      contact.status
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+  }
 }
-
-
-
 
 module.exports = CustomerService;
